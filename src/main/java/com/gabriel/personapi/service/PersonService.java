@@ -4,6 +4,7 @@ package com.gabriel.personapi.service;
 import com.gabriel.personapi.dto.request.PersonDTO;
 import com.gabriel.personapi.dto.response.MessageResponseDTO;
 import com.gabriel.personapi.entity.Person;
+import com.gabriel.personapi.exception.PersonNotFoundException;
 import com.gabriel.personapi.mapper.PersonMapper;
 import com.gabriel.personapi.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class PersonService {
         this.personRepository = personRepository;
     }
 
-    public MessageResponseDTO createPerson( PersonDTO personDTO){
+    public MessageResponseDTO createPerson(PersonDTO personDTO) {
 
         Person personToSave = personMapper.toModel(personDTO);
 
@@ -36,10 +37,19 @@ public class PersonService {
     }
 
     public List<PersonDTO> listAll() {
-             List<Person> allpeople = personRepository.findAll();
-             return allpeople.stream()
-                    .map(personMapper::toDTO)
-                    .collect(Collectors.toList());
+        List<Person> allpeople = personRepository.findAll();
+        return allpeople.stream()
+                .map(personMapper::toDTO)
+                .collect(Collectors.toList());
+
+    }
+
+    public PersonDTO findById(Long id) throws PersonNotFoundException {
+        Person person = personRepository.findById(id)
+                .orElseThrow(() -> new PersonNotFoundException(id));
+
+        return personMapper.toDTO(person);
+
 
     }
 }

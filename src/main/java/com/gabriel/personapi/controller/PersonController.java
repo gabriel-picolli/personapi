@@ -3,6 +3,7 @@ package com.gabriel.personapi.controller;
 import com.gabriel.personapi.dto.request.PersonDTO;
 import com.gabriel.personapi.dto.response.MessageResponseDTO;
 import com.gabriel.personapi.entity.Person;
+import com.gabriel.personapi.exception.PersonNotFoundException;
 import com.gabriel.personapi.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,12 @@ public class PersonController {
     @GetMapping
     public List<PersonDTO> listAll() {
         return personService.listAll();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public PersonDTO findById(@PathVariable Long id) throws PersonNotFoundException {
+        return personService.findById(id);
     }
 
 
