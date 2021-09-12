@@ -1,6 +1,5 @@
 package com.gabriel.personapi.service;
 
-
 import com.gabriel.personapi.dto.request.PersonDTO;
 import com.gabriel.personapi.dto.response.MessageResponseDTO;
 import com.gabriel.personapi.entity.Person;
@@ -18,27 +17,17 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class PersonService {
 
-    private PersonRepository personRepository;
+    private final PersonRepository personRepository;
 
-    private final PersonMapper personMapper = PersonMapper.INSTANCE;
+    private final PersonMapper personMapper;
 
-    public MessageResponseDTO createPerson(PersonDTO personDTO) {
+    public MessageResponseDTO create(PersonDTO personDTO) {
+        Person person = personMapper.toModel(personDTO);
+        Person savedPerson = personRepository.save(person);
 
-        Person personToSave = personMapper.toModel(personDTO);
+        MessageResponseDTO messageResponse = createMessageResponse("Person successfully created with ID ", savedPerson.getId());
 
-        Person savedPerson = personRepository.save(personToSave);
-        return MessageResponseDTO
-                .builder()
-                .message("Created person with ID" + savedPerson.getId())
-                .build();
-    }
-
-    public List<PersonDTO> listAll() {
-        List<Person> allpeople = personRepository.findAll();
-        return allpeople.stream()
-                .map(personMapper::toDTO)
-                .collect(Collectors.toList());
-
+        return messageResponse;
     }
 
     public PersonDTO findById(Long id) throws PersonNotFoundException {
@@ -46,8 +35,13 @@ public class PersonService {
                 .orElseThrow(() -> new PersonNotFoundException(id));
 
         return personMapper.toDTO(person);
+    }
 
-
+    public List<PersonDTO> listAll() {
+        List<Person> people = personRepository.findAll();
+        return people.stream()
+                .map(personMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     public MessageResponseDTO update(Long id, PersonDTO personDTO) throws PersonNotFoundException {
@@ -67,7 +61,6 @@ public class PersonService {
                 .orElseThrow(() -> new PersonNotFoundException(id));
 
         personRepository.deleteById(id);
-
     }
 
     private MessageResponseDTO createMessageResponse(String s, Long id2) {
@@ -75,5 +68,4 @@ public class PersonService {
                 .message(s + id2)
                 .build();
     }
-
 }
